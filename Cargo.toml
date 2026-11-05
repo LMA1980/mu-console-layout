@@ -1,0 +1,16 @@
+[package]
+name = "mu-console-layout"
+version = "0.1.0"
+edition = "2021"
+authors = ["LMA1980"]
+repository = "https://github.com/LMA1980/mu-console-layout"
+description = "MuConsole pure layout solver: breakpoints, frame solver and metric-aware CRT column grids (zero page scroll)"
+license = "LGPL-3.0-only WITH LGPL-3.0-linking-exception"
+
+[lib]
+name = "mu_console_layout"
+path = "src/lib.rs"
+
+[dependencies]
+mu-console-protocol = { path = "../mu-console-protocol", version = "0.1.0" }
+mu-console-theme = { path = "../mu-console-theme", version = "0.1.0" }

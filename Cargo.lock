@@ -34,6 +34,7 @@ dependencies = [
 [[package]]
 name = "mu-console-protocol"
 version = "0.1.0"
+source = "git+https://github.com/LMA1980/mu-console-protocol.git#1718b1d746d05a70f47a627fffa23e1d4c37ffbd"
 dependencies = [
  "postcard",
  "serde",
@@ -42,6 +43,7 @@ dependencies = [
 [[package]]
 name = "mu-console-theme"
 version = "0.1.0"
+source = "git+https://github.com/LMA1980/mu-console-theme.git#a9ee78b0c79715b424ed3f62a4026dbc2c692392"
 
 [[package]]
 name = "postcard"

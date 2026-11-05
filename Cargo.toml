@@ -12,5 +12,5 @@ name = "mu_console_layout"
 path = "src/lib.rs"
 
 [dependencies]
-mu-console-protocol = { path = "../mu-console-protocol", version = "0.1.0" }
-mu-console-theme = { path = "../mu-console-theme", version = "0.1.0" }
+mu-console-protocol = { version = "0.1.0", git = "https://github.com/LMA1980/mu-console-protocol.git" }
+mu-console-theme = { version = "0.1.0", git = "https://github.com/LMA1980/mu-console-theme.git" }

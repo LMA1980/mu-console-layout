@@ -236,7 +236,7 @@ const PANEL_GRID: GridSpec = GridSpec {
 const CARD_GRID: GridSpec = GridSpec {
     design_px: 14.0,
     floor_px: CRT_FLOOR_DESKTOP_PX,
-    pad_x: 8.0,
+    pad_x: 6.0,
     pad_y: 6.0,
 };
 
@@ -292,6 +292,70 @@ pub fn desktop_card(plate: Rect, font: &CrtFontMetrics) -> Card {
     card(plate, 38.0, 14.0, 14.0, 10.0, CARD_GRID, font)
 }
 
+/// Compute the dynamic `(cols, rows)` grid capacity of twin-CRT scorecards
+/// that fit inside `area` without horizontal truncation or vertical overflow.
+#[must_use]
+#[allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::cast_precision_loss
+)]
+pub fn scorecard_grid_dims(area: Rect, bp: Breakpoint, _font: &CrtFontMetrics) -> (usize, usize) {
+    let pad = 12.0;
+    let inner = area.inset(pad, pad, pad, pad);
+    let cols = match bp {
+        Breakpoint::Phone => 1,
+        Breakpoint::CompactLandscape => {
+            (((inner.w + CARD_GAP) / (280.0 + CARD_GAP)).floor() as usize).clamp(1, 3)
+        }
+        Breakpoint::Medium => {
+            (((inner.w + CARD_GAP) / (360.0 + CARD_GAP)).floor() as usize).clamp(1, 3)
+        }
+        Breakpoint::Wide => {
+            if inner.w >= 1100.0 {
+                (((inner.w + CARD_GAP) / (415.0 + CARD_GAP)).floor() as usize).clamp(3, 6)
+            } else {
+                2
+            }
+        }
+    };
+    let target_row_h = match bp {
+        Breakpoint::CompactLandscape => 122.0,
+        Breakpoint::Phone => 142.0,
+        Breakpoint::Medium | Breakpoint::Wide => 166.0,
+    };
+    let rows = (((inner.h + CARD_GAP) / (target_row_h + CARD_GAP)).floor() as usize).clamp(1, 6);
+    (cols.max(1), rows.max(1))
+}
+
+/// Compute the dynamic number of repository scorecards per page (`cols * rows`)
+/// for `area`, `bp`, and `font`.
+#[must_use]
+pub fn scorecard_page_capacity(area: Rect, bp: Breakpoint, font: &CrtFontMetrics) -> usize {
+    let (cols, rows) = scorecard_grid_dims(area, bp, font);
+    (cols * rows).max(1)
+}
+
+/// Compute the dynamic number of visible branch sidings per Trainway page
+/// for `screen_rect`, `bp`, and `grid_rows`.
+#[must_use]
+#[allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::cast_precision_loss
+)]
+pub fn trainway_siding_capacity(screen_rect: Rect, bp: Breakpoint, grid_rows: usize) -> usize {
+    let max_by_grid = grid_rows.saturating_sub(4).max(2);
+    let by_height = match bp {
+        Breakpoint::Phone => 3,
+        Breakpoint::CompactLandscape => 4,
+        Breakpoint::Medium | Breakpoint::Wide => {
+            (((screen_rect.h - 100.0).max(140.0) / 70.0).floor() as usize).clamp(4, 14)
+        }
+    };
+    by_height.min(max_by_grid).max(2)
+}
+
 /// Compute a responsive grid of twin-CRT repository scorecard plates inside `area`.
 #[must_use]
 #[allow(
@@ -308,25 +372,32 @@ pub fn scorecard_cards(
     if count == 0 {
         return Vec::new();
     }
-    let cols = match bp {
-        Breakpoint::Wide => 3,
-        Breakpoint::Medium | Breakpoint::CompactLandscape => 2,
-        Breakpoint::Phone => 1,
-    }
-    .min(count)
-    .max(1);
+    let (grid_cols, grid_rows) = scorecard_grid_dims(area, bp, font);
+    let cols = grid_cols.min(count).max(1);
     let rows = count.div_ceil(cols).max(1);
+    let layout_rows = rows.max(grid_rows);
     let pad = 12.0;
     let inner = area.inset(pad, pad, pad, pad);
-    let card_w = ((inner.w - CARD_GAP * (cols.saturating_sub(1)) as f64) / cols as f64)
+    let card_w = ((inner.w - CARD_GAP * (grid_cols.min(count).saturating_sub(1)) as f64)
+        / cols as f64)
         .floor()
         .max(120.0);
-    let avail_h = ((inner.h - CARD_GAP * (rows.saturating_sub(1)) as f64) / rows as f64)
+    let min_h = match bp {
+        Breakpoint::CompactLandscape => 118.0,
+        _ => CARD_H_MIN,
+    };
+    let avail_h = ((inner.h - CARD_GAP * (layout_rows.saturating_sub(1)) as f64)
+        / layout_rows as f64)
         .floor()
-        .clamp(CARD_H_MIN, CARD_H);
+        .clamp(min_h, CARD_H);
     let spec = match bp {
         Breakpoint::Wide | Breakpoint::Medium => CARD_GRID,
         Breakpoint::CompactLandscape | Breakpoint::Phone => phone_grid(CARD_GRID, 14.0),
+    };
+    let (top_inset, bottom_inset) = if avail_h < 142.0 {
+        (28.0, 8.0)
+    } else {
+        (34.0, 10.0)
     };
     (0..count)
         .map(|idx| {
@@ -336,10 +407,10 @@ pub fn scorecard_cards(
             let y = inner.y + row as f64 * (avail_h + CARD_GAP);
             card(
                 Rect::new(x, y, card_w, avail_h),
-                36.0,
-                12.0,
-                12.0,
+                top_inset,
+                bottom_inset,
                 10.0,
+                8.0,
                 spec,
                 font,
             )

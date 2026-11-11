@@ -25,7 +25,7 @@ checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
 
 [[package]]
 name = "mu-console-layout"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "mu-console-protocol",
  "mu-console-theme",
@@ -33,8 +33,8 @@ dependencies = [
 
 [[package]]
 name = "mu-console-protocol"
-version = "0.1.0"
-source = "git+https://github.com/LMA1980/mu-console-protocol.git#1718b1d746d05a70f47a627fffa23e1d4c37ffbd"
+version = "0.1.1"
+source = "git+https://github.com/LMA1980/mu-console-protocol.git?branch=main#862b1b8935734a46e84f3fa3c8d9cd0c68e4d0c2"
 dependencies = [
  "postcard",
  "serde",
@@ -42,8 +42,8 @@ dependencies = [
 
 [[package]]
 name = "mu-console-theme"
-version = "0.1.0"
-source = "git+https://github.com/LMA1980/mu-console-theme.git#a9ee78b0c79715b424ed3f62a4026dbc2c692392"
+version = "0.1.1"
+source = "git+https://github.com/LMA1980/mu-console-theme.git?branch=main#6e0b1f937f761bb92f722a3ff58e84ca2c60c94b"
 
 [[package]]
 name = "postcard"

@@ -1,6 +1,7 @@
-______________________________________________________________________
-
-## name: mu-console-layout description: "Pure deterministic layout solver for MuConsole: breakpoints, frame tiling, and metric-aware CRT column grids with zero page scroll."
+---
+name: mu-console-layout
+description: "Pure deterministic layout solver for MuConsole: breakpoints, frame tiling, and metric-aware CRT column grids with zero page scroll."
+---
 
 # `mu-console-layout` Pure Layout Solver
 

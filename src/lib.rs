@@ -97,22 +97,29 @@ pub fn classify(width: f64, height: f64) -> Breakpoint {
 /// Dashboard panel kind corresponding to the active top-level area.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PanelKind {
+    Dashboard,
     Trainway,
     Delivery,
-    Registry,
-    Observe,
-    Fleet,
+    AbDeploy,
+    Repository,
+    Observability,
+    ModelRunner,
+    Platform,
 }
 
 impl PanelKind {
+    /// Map a top-level protocol [`Area`] to its dashboard [`PanelKind`].
     #[must_use]
     pub const fn for_area(area: Area) -> Self {
         match area {
+            Area::Dashboard => Self::Dashboard,
             Area::Ci => Self::Trainway,
             Area::Cd => Self::Delivery,
-            Area::Registry => Self::Registry,
-            Area::Observe => Self::Observe,
-            Area::Fleet => Self::Fleet,
+            Area::AbDeploy => Self::AbDeploy,
+            Area::Repository => Self::Repository,
+            Area::Observability => Self::Observability,
+            Area::ModelRunner => Self::ModelRunner,
+            Area::Platform => Self::Platform,
         }
     }
 }

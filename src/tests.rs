@@ -5,7 +5,7 @@ use super::*;
 use mu_console_theme::metrics::{CRT_FONTS, HURMIT, OPEN_DYSLEXIC};
 
 const EPS: f64 = 0.01;
-const AREAS: [Area; 5] = Area::ALL;
+const AREAS: [Area; 8] = Area::ALL;
 
 /// Design targets: (width, height, expected breakpoint).
 const TARGETS: [(f64, f64, Breakpoint); 6] = [
@@ -307,9 +307,9 @@ fn visual_viewport_mapping_and_routes() {
         Viewport::new(402.0, 720.0)
     );
     let route = mu_console_protocol::Route {
-        area: Area::Fleet,
-        subview: mu_console_protocol::SubView::Fleet(
-            mu_console_protocol::FleetSubView::WorkerNodes,
+        area: Area::Platform,
+        subview: mu_console_protocol::SubView::Platform(
+            mu_console_protocol::PlatformSubView::Maintenance,
         ),
         repo: None,
         submodule: None,
@@ -324,5 +324,40 @@ fn visual_viewport_mapping_and_routes() {
         &route,
         &HURMIT,
     );
-    assert_eq!(f.panels[0].kind, PanelKind::Fleet);
+    assert_eq!(f.panels[0].kind, PanelKind::Platform);
+}
+
+#[test]
+fn all_eight_areas_map_to_distinct_panel_kinds() {
+    let expected = [
+        (Area::Dashboard, PanelKind::Dashboard),
+        (Area::Ci, PanelKind::Trainway),
+        (Area::Cd, PanelKind::Delivery),
+        (Area::AbDeploy, PanelKind::AbDeploy),
+        (Area::Repository, PanelKind::Repository),
+        (Area::Observability, PanelKind::Observability),
+        (Area::ModelRunner, PanelKind::ModelRunner),
+        (Area::Platform, PanelKind::Platform),
+    ];
+    for (idx, (area, kind)) in expected.iter().enumerate() {
+        assert_eq!(AREAS[idx], *area);
+        assert_eq!(PanelKind::for_area(*area), *kind);
+        let route = mu_console_protocol::Route {
+            area: *area,
+            subview: mu_console_protocol::SubView::default_for(*area),
+            repo: None,
+            submodule: None,
+            branch: None,
+            job: None,
+            trace_id: None,
+            filter: None,
+        };
+        let f = solve_route(
+            Viewport::new(1512.0, 860.0),
+            SafeArea::ZERO,
+            &route,
+            &HURMIT,
+        );
+        assert_eq!(f.panels[0].kind, *kind);
+    }
 }
